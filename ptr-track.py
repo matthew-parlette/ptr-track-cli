@@ -25,15 +25,72 @@ def merge(x,y):
 
     return merged
 
-def getch():
-    fd = sys.stdin.fileno()
-    old_settings = termios.tcgetattr(fd)
-    try:
-        tty.setraw(sys.stdin.fileno())
-        ch = sys.stdin.read(1)
-    finally:
-        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-    return ch
+class Menu(object):
+    def __init__(self):
+        self.title = ""
+        self.options = {}
+        self.quitting = False
+
+    def render(self):
+        while not self.quitting:
+            print ""
+
+            # Render title
+            print self.title
+            print "=" * len(self.title)
+
+            # Render options
+            for key, value in self.options.iteritems():
+                print "(%s) %s" % (
+                    key.upper(),
+                    str(value),
+                )
+
+            # Render common options
+            print "(Q) Quit"
+
+            # Read input
+            print "> ",
+            selection = self.getch()
+            print "\n"
+            self.handle_input(selection)
+
+    def handle_input(self, selection):
+        if selection in ['q','Q']:
+            self.quitting = True
+        elif selection.lower() in [k.lower() for k in self.options.keys()]:
+            if self.options[selection.lower()] in globals().keys():
+                globals()[self.options[selection.lower()]]().render()
+            else:
+                print "%s not implemented..." % str(self.options[selection.lower()])
+
+    def getch(self):
+        fd = sys.stdin.fileno()
+        old_settings = termios.tcgetattr(fd)
+        try:
+            tty.setraw(sys.stdin.fileno())
+            ch = sys.stdin.read(1)
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+        return ch
+
+class MainMenu(Menu):
+    def __init__(self):
+        super(MainMenu, self).__init__()
+        self.title = "Main Menu"
+        self.options = {
+            'b': 'BodyMenu',
+            'l': 'LiftingMenu',
+        }
+
+class BodyMenu(Menu):
+    def __init__(self):
+        super(BodyMenu, self).__init__()
+        self.title = "Body"
+        self.options = {
+            'w': 'WeightEntry',
+            'f': 'FatEntry',
+        }
 
 if __name__ == "__main__":
     # Parse command line arguments
@@ -93,32 +150,4 @@ if __name__ == "__main__":
 
     log.info("Initialization complete")
 
-    quitting = False
-
-    while not quitting:
-        # Render menu
-        print "\nMain"
-        print "===="
-        print "(B)ody"
-        print "(L)ifting"
-        print "> ",
-
-        user_input = getch().lower()
-        
-        if user_input in ['b']:
-            print "\nBody"
-            print "===="
-            print "(W)eight"
-            print "(F)at"
-            print "> ",
-            user_input = getch().lower()
-
-            if user_input in ['w']:
-                print "\n"
-            elif user_input in ['f']:
-                print "\n"
-        elif user_input in ['l']:
-            print "\n"
-
-        quitting = True
-
+    MainMenu().render()
