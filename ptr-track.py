@@ -7,6 +7,7 @@ import yaml
 import tty
 import sys
 import termios
+import datetime
 
 global config
 
@@ -49,11 +50,23 @@ class Menu(object):
             # Render common options
             print "(Q) Quit"
 
-            # Read input
-            print "> ",
+            self.prompt()
+
+    def prompt(self, getch = True, title = '', prompt = '>', prefill = ''):
+        # Read input
+        print prompt,
+        print " ",
+        if getch:
             selection = self.getch()
             print "\n"
-            self.handle_input(selection)
+            return self.handle_input(selection)
+        else:
+            selection = raw_input("%s [%s] %s " % (
+                title,
+                prefill,
+                prompt
+            )) or prefill
+            return selection
 
     def handle_input(self, selection):
         if selection in ['q','Q']:
@@ -90,6 +103,38 @@ class BodyMenu(Menu):
         self.options = {
             'w': 'WeightEntry',
             'f': 'FatEntry',
+        }
+
+class Entry(Menu):
+    def __init__(self):
+        super(Entry, self).__init__()
+        self.title = "Entry"
+        self.url_base = "http://localhost:5000"
+        self.url = ""
+        self.items = {}
+
+    def render(self):
+        print self.title
+        print '=' * len(self.title)
+        data = {}
+        for item, default in self.items.iteritems():
+            data[item] = super(Entry, self).prompt(getch = False,title = item,prefill = default)
+        self.submit(data)
+
+    def submit(self, data = {}):
+        print "Submitting %s to %s..." % (
+            str(data),
+            str(self.url_base) + str(self.url),
+        )
+
+class WeightEntry(Entry):
+    def __init__(self):
+        super(WeightEntry, self).__init__()
+        self.title = "Weight Entry"
+        self.url = "/body/weight"
+        self.items = {
+            'weight': '',
+            'datetime': datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
         }
 
 if __name__ == "__main__":
