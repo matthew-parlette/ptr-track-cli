@@ -8,6 +8,8 @@ import tty
 import sys
 import termios
 import datetime
+import json
+import requests
 
 global config
 
@@ -126,6 +128,11 @@ class Entry(Menu):
             str(data),
             str(self.url_base) + str(self.url),
         )
+        response = requests.post(
+            self.url_base + self.url,
+            data = data,
+        )
+        print "Response %s" % str(response.text)
 
 class WeightEntry(Entry):
     def __init__(self):
@@ -134,7 +141,7 @@ class WeightEntry(Entry):
         self.url = "/body/weight"
         self.items = {
             'weight': '',
-            'datetime': datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
+            'datetime': datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"),
         }
 
 if __name__ == "__main__":
