@@ -103,8 +103,16 @@ class BodyMenu(Menu):
         super(BodyMenu, self).__init__()
         self.title = "Body"
         self.options = {
-            'w': 'WeightEntry',
-            'f': 'FatEntry',
+            'w': 'BodyWeightEntry',
+            'f': 'BodyFatEntry',
+        }
+
+class LiftingMenu(Menu):
+    def __init__(self):
+        super(BodyMenu, self).__init__()
+        self.title = "Lifting"
+        self.options = {
+            'w': 'LiftingSetEntry',
         }
 
 class Entry(Menu):
@@ -134,14 +142,40 @@ class Entry(Menu):
         )
         print "Response %s" % str(response.text)
 
-class WeightEntry(Entry):
+# /body/weight
+class BodyWeightEntry(Entry):
     def __init__(self):
-        super(WeightEntry, self).__init__()
+        super(BodyWeightEntry, self).__init__()
         self.title = "Weight Entry"
         self.url = "/body/weight"
         self.items = {
             'weight': '',
             'datetime': datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        }
+
+# /body/fat
+class BodyFatEntry(Entry):
+    def __init__(self):
+        super(BodyFatEntry, self).__init__()
+        self.title = "Fat Entry"
+        self.url = "/body/fat"
+        self.items = {
+            'fatpct': '',
+            'datetime': datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        }
+
+# /lifting/set
+class LiftingSetEntry(Entry):
+    def __init__(self):
+        super(LiftingSetEntry, self).__init__()
+        self.title = "Set Entry"
+        self.url = "/lifting/set"
+        self.items = {
+            'exercise': '',
+            'datetime': datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"),
+            'weight': '',
+            'units': '',
+            'repetitions': '',
         }
 
 if __name__ == "__main__":
